@@ -1,0 +1,30 @@
+{
+  "name": "techdegree-project-9",
+  "version": "0.1.0",
+  "description": "REST API",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kimdrezdon/techdegree-project-9.git"
+  },
+  "author": "Kim Drezdon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kimdrezdon/techdegree-project-9/issues"
+  },
+  "homepage": "https://github.com/kimdrezdon/techdegree-project-9#readme",
+  "engines": {
+    "node": "12.11.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.3"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
