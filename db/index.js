@@ -4,7 +4,8 @@ const Sequelize = require("sequelize");
 // instantiate sequelize and configure it
 const sequelize = new Sequelize({
     dialect: "sqlite",
-    storage: "courses.db"
+    storage: "courses.db",
+    logging: false //disable logging
 });
 
 // create the database object

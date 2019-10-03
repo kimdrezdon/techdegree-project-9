@@ -1,3 +1,7 @@
+//Require express
+const express = require("express");
+const app = express();
+
 // imports the database from index.js
 const db = require("./db");
 
@@ -45,3 +49,11 @@ const { User, Course } = db.models;
         console.error('Error creating a record: ', error);
     }
 }) ();
+
+// set our port
+app.set('port', process.env.PORT || 5000);
+
+// start listening on our port
+const server = app.listen(app.get('port'), () => {
+  console.log(`Express server is listening on localhost:${server.address().port}`);
+});
