@@ -2,6 +2,10 @@
 const express = require("express");
 const app = express();
 
+//Setup morgan
+const morgan = require('morgan');
+app.use(morgan('dev'));
+
 // imports the database from index.js
 const db = require("./db");
 
@@ -49,6 +53,13 @@ const { User, Course } = db.models;
         console.error('Error creating a record: ', error);
     }
 }) ();
+
+// setup a friendly greeting for the root route
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Welcome to the REST API project!',
+    });
+});
 
 // set our port
 app.set('port', process.env.PORT || 5000);
