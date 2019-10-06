@@ -18,49 +18,9 @@ const routes = require('./routes');
 //Express middleware parses incoming JSON from the client and makes it available to our Express server via req.body
 app.use(express.json());
 
-//remove the async await and try catch blocks after app is working
-(async () => {
-    // sync all tables. force:true drops the table that exists each time the app is started and recreates it from the model definition
-    await db.sequelize.sync({ force: true });
-    try {
-        //create records for testing purposes
-        const user1 = await User.create({
-            firstName: 'Kim',
-            lastName: 'Drezdon',
-            emailAddress: 'kimdrezdon@gmail.com',
-            password: 'testing123'
-        });
-        const user2 = await User.create({
-            firstName: 'Dylan',
-            lastName: 'Zocchi',
-            emailAddress: 'dylanzocchi@gmail.com',
-            password: 'testing1234'
-        });
-        await Course.create({
-            title: 'Intro to Art History',
-            description: 'Blah blah blah',
-            estimatedTime: '1 hour',
-            materialsNeeded: 'Pen and notebook',
-            UserId: user1.id
-        });
-        await Course.create({
-            title: 'Astronomy',
-            description: 'Blahs blahs blahs',
-            estimatedTime: '2 hour',
-            materialsNeeded: 'Pencil',
-            UserId: user2.id
-        });
-        await Course.create({
-            title: 'Calculus',
-            description: 'Blahdy blah',
-            estimatedTime: '3 hour',
-            materialsNeeded: 'Calculator',
-            UserId: user1.id
-        });
-    } catch (error) {
-        console.error('Error creating a record: ', error);
-    }
-}) ();
+
+// sync all tables. force:true drops the table that exists each time the app is started and recreates it from the model definition
+db.sequelize.sync();
 
 //Use the routes.js file when the requested route starts with /api/
 app.use('/api', routes);
