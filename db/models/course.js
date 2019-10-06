@@ -13,10 +13,32 @@ module.exports = sequelize => {
             autoIncrement: true
         },
         title: {
-            type: Sequelize.STRING
+            type: Sequelize.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    // custom error message for NULL values (thrown by allowNull: false)
+                    msg: "Please provide a Title"
+                },
+                notEmpty: {
+                    // custom error message for empty strings (thrown by STRING data type)
+                    msg: "Please provide a Title"
+                }
+            }
         },
         description: {
-            type: Sequelize.TEXT
+            type: Sequelize.TEXT,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    // custom error message for NULL values (thrown by allowNull: false)
+                    msg: "Please provide a Description"
+                },
+                notEmpty: {
+                    // custom error message for empty strings (thrown by STRING data type)
+                    msg: "Please provide a Description"
+                }
+            }
         },
         estimatedTime: {
             type: Sequelize.STRING,

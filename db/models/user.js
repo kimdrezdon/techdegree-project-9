@@ -13,16 +13,60 @@ module.exports = sequelize => {
             autoIncrement: true
         },
         firstName: {
-            type: Sequelize.STRING
+            type: Sequelize.STRING,
+            allowNull: false,
+            validate: {
+              notNull: {
+                // custom error message for NULL values (thrown by allowNull: false)
+                msg: "Please provide a First Name"
+              },
+              notEmpty: {
+                // custom error message for empty strings (thrown by STRING data type)
+                msg: "Please provide a First Name"
+              }
+            }
         },
         lastName: {
-            type: Sequelize.STRING
+            type: Sequelize.STRING,
+            allowNull: false,
+            validate: {
+              notNull: {
+                // custom error message for NULL values (thrown by allowNull: false)
+                msg: "Please provide a Last Name"
+              },
+              notEmpty: {
+                // custom error message for empty strings (thrown by STRING data type)
+                msg: "Please provide a Last Name"
+              }
+            }
         },
         emailAddress: {
-            type: Sequelize.STRING
+            type: Sequelize.STRING,
+            allowNull: false,
+            validate: {
+              notNull: {
+                // custom error message for NULL values (thrown by allowNull: false)
+                msg: "Please provide an Email Address"
+              },
+              notEmpty: {
+                // custom error message for empty strings (thrown by STRING data type)
+                msg: "Please provide an Email Address"
+              }
+            }
         },
         password: {
-            type: Sequelize.STRING
+            type: Sequelize.STRING,
+            allowNull: false,
+            validate: {
+              notNull: {
+                // custom error message for NULL values (thrown by allowNull: false)
+                msg: "Please provide a Password"
+              },
+              notEmpty: {
+                // custom error message for empty strings (thrown by STRING data type)
+                msg: "Please provide a Password"
+              }
+            }
         }
     }, { sequelize });
 
