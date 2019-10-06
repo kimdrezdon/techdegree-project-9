@@ -29,13 +29,13 @@ function asyncHandler(cb) {
 //Send a GET request to /users to return the currently authenticated user (200)
 //needs to call custom authentication middleware first
 router.get('/users', asyncHandler( async (req, res) => {
-
+    res.status(200).json();
 }));
 
 //Send a POST request to /users to create a user, set the Location header to '/' and return no content (201)
 //needs to validate that the request body contains these required values and return validation errors when necessary: firstName, lastName, emailAddress, password
 router.post('/users', asyncHandler( async (req, res) => {
-
+    res.status(201).end();
 }));
 
 //Send a GET request to /courses to return a list of courses, including the user that owns each course (200)
@@ -53,18 +53,18 @@ router.get('/courses/:id', asyncHandler( async (req, res) => {
 //Send a POST request to /courses to create a course, set the Location header to the URI for the course, and return no content (201)
 //needs to validate that the request body contains these required values and return validation errors when necessary: title, description
 router.post('/courses', asyncHandler( async (req, res) => {
-
+    res.status(201).end();
 }));
 
 //Send a PUT request to /courses/:id to update a course and return no content (204)
 //needs to validate that the request body contains these required values and return validation errors when necessary: title, description
 router.put('/courses/:id', asyncHandler( async (req, res) => {
-
+    res.status(204).end();
 }));
 
 //Send a DELETE request to /courses/:id to delete a course and return no content
 router.delete('/courses/:id', asyncHandler( async (req, res) => {
-
+    res.status(204).end();
 }));
 
 //Export the router
