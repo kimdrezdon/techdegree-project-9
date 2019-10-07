@@ -48,7 +48,7 @@ const authenticateUser = async (req, res, next) => {
 
             // If the passwords match...
             if (authenticated) {
-                console.log(`Authentication successful for username: ${user.username}`);
+                console.log(`Authentication successful for username: ${user.emailAddress}`);
                 // Then store the retrieved user object on the request object so any middleware functions that follow this middleware function will have access to the user's information.
                 req.currentUser = user;
             } else {
@@ -72,6 +72,7 @@ const authenticateUser = async (req, res, next) => {
         next();
     }
 };
+
 
 //Custom validators for user creation
 const firstNameValidator = check('firstName')
@@ -101,6 +102,23 @@ const passwordValidator = check('password')
         checkFalsy: true
     })
     .withMessage('Please provide a value for "password"');
+
+
+//Custom validators for course creation
+const titleValidator = check('title')
+    .exists({
+        checkNull: true,
+        checkFalsy: true
+    })
+    .withMessage('Please provide a value for "title"');
+
+const descriptionValidator = check('description')
+    .exists({
+        checkNull: true,
+        checkFalsy: true
+    })
+    .withMessage('Please provide a value for "description"');
+
 
 //Send a GET request to /users to return the currently authenticated user (200)
 //needs to call custom authentication middleware first
@@ -169,7 +187,19 @@ router.get('/courses/:id', asyncHandler( async (req, res) => {
 
 //Send a POST request to /courses to create a course, set the Location header to the URI for the course, and return no content (201)
 //needs to validate that the request body contains these required values and return validation errors when necessary: title, description
-router.post('/courses', authenticateUser, asyncHandler( async (req, res) => {
+router.post('/courses', authenticateUser, titleValidator, descriptionValidator, asyncHandler( async (req, res) => {
+    //Attempt to get the validation result from the Request object
+    const errors = validationResult(req);
+
+    // If there are validation errors...
+    if (!errors.isEmpty()) {
+        // Use the Array `map()` method to get a list of error messages.
+        const errorMessages = errors.array().map(error => error.msg);
+
+        // Return the validation errors to the client.
+        return res.status(400).json({ errors: errorMessages });
+    }
+    
     const user = req.currentUser;
     let course;
     try {
@@ -189,13 +219,32 @@ router.post('/courses', authenticateUser, asyncHandler( async (req, res) => {
 
 //Send a PUT request to /courses/:id to update a course and return no content (204)
 //needs to validate that the request body contains these required values and return validation errors when necessary: title, description
-router.put('/courses/:id', asyncHandler( async (req, res) => {
+router.put('/courses/:id', authenticateUser, titleValidator, descriptionValidator, asyncHandler( async (req, res) => {
+    //Attempt to get the validation result from the Request object
+    const errors = validationResult(req);
+
+    // If there are validation errors...
+    if (!errors.isEmpty()) {
+        // Use the Array `map()` method to get a list of error messages.
+        const errorMessages = errors.array().map(error => error.msg);
+
+        // Return the validation errors to the client.
+        return res.status(400).json({ errors: errorMessages });
+    }
+    
+    const user = req.currentUser;
     let course;
     try {
         course = await Course.findByPk(req.params.id);
+        req.body.id = req.params.id;
         if (course) {
-            await course.update(req.body);
-            res.status(204).end();
+            if (course.UserId === user.dataValues.id) {
+                req.body.UserId = user.dataValues.id;
+                await course.update(req.body);
+                res.status(204).end();
+            } else {
+                res.status(401).json({ message: 'Access Denied' });
+            }
         } else {
             res.sendStatus(404);
         }
