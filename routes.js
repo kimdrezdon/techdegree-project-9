@@ -259,10 +259,19 @@ router.put('/courses/:id', authenticateUser, titleValidator, descriptionValidato
 }));
 
 //Send a DELETE request to /courses/:id to delete a course and return no content
-router.delete('/courses/:id', asyncHandler( async (req, res) => {
+router.delete('/courses/:id', authenticateUser, asyncHandler( async (req, res) => {
+    const user = req.currentUser;
     const course = await Course.findByPk(req.params.id);
-    await course.destroy();
-    res.status(204).end();
+    if (course) {
+        if (course.UserId === user.dataValues.id) {
+            await course.destroy();
+            res.status(204).end();
+        } else {
+            res.status(401).json({ message: 'Access Denied' });
+        }
+    } else {
+        res.sendStatus(404);
+    }
 }));
 
 //Export the router
