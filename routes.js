@@ -135,7 +135,8 @@ router.post('/users', firstNameValidator, lastNameValidator, emailValidator, pas
         res.status(201).set('Location', '/').end();
     } catch (error) {
         if (error.name === "SequelizeValidationError") {
-            res.status(400).json(error.errors);
+            const errorMessages = error.errors.map(error => error.message);
+            res.status(400).json({ errors: errorMessages });
         } else {
             throw error;
         }
@@ -168,15 +169,18 @@ router.get('/courses/:id', asyncHandler( async (req, res) => {
 
 //Send a POST request to /courses to create a course, set the Location header to the URI for the course, and return no content (201)
 //needs to validate that the request body contains these required values and return validation errors when necessary: title, description
-router.post('/courses', asyncHandler( async (req, res) => {
+router.post('/courses', authenticateUser, asyncHandler( async (req, res) => {
+    const user = req.currentUser;
     let course;
     try {
+        req.body.UserId = user.dataValues.id;
         course = await Course.create(req.body);
-        const id = course.dataValues.id;
-        res.status(201).set('Location', `/courses/${id}`).end();
+        const courseId = course.dataValues.id;
+        res.status(201).set('Location', `/courses/${courseId}`).end();
     } catch (error) {
         if (error.name === "SequelizeValidationError") {
-            res.status(400).json(error.errors);
+            const errorMessages = error.errors.map(error => error.message);
+            res.status(400).json({ errors: errorMessages });
         } else {
             throw error;
         }
@@ -197,7 +201,8 @@ router.put('/courses/:id', asyncHandler( async (req, res) => {
         }
     } catch (error) {
         if (error.name === "SequelizeValidationError") {
-            res.status(400).json(error.errors);
+            const errorMessages = error.errors.map(error => error.message);
+            res.status(400).json({ errors: errorMessages });
         } else {
             throw error;
         }
