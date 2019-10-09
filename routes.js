@@ -99,11 +99,11 @@ router.post('/users', asyncHandler( async (req, res) => {
 
 //Send a GET request to /courses to return a list of courses, including the user that owns each course (200)
 router.get('/courses', asyncHandler( async (req, res) => {
-    const courses = await Course.findAll({      
-        //options object literal to configure the query
+    const courses = await Course.findAll({
+        attributes: { exclude: ['createdAt', 'updatedAt'] },
         include: [{
             model: User,
-            attributes: [ 'firstName', 'lastName' ]
+            attributes: { exclude: ['password', 'createdAt', 'updatedAt'] }
         }] //list of associations to load
     });
     res.status(200).json(courses);
@@ -112,11 +112,11 @@ router.get('/courses', asyncHandler( async (req, res) => {
 //Send a GET request to /courses/:id to return the course, including the user that owns the course, for the provided course ID (200)
 router.get('/courses/:id', asyncHandler( async (req, res) => {
     const course = await Course.findByPk(req.params.id, {        
-        //options object literal to configure the query
+        attributes: { exclude: ['createdAt', 'updatedAt'] },
         include: [{
             model: User,
-            attributes: [ 'firstName', 'lastName' ]
-        }]
+            attributes: { exclude: ['password', 'createdAt', 'updatedAt'] }
+        }] //list of associations to load
     });
     res.status(200).json(course);
 }));
