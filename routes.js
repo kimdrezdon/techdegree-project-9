@@ -82,9 +82,8 @@ router.get('/users', authenticateUser, asyncHandler( async (req, res) => {
 
 //Send a POST request to /users to create a user, set the Location header to '/' and return no content (201)
 router.post('/users', asyncHandler( async (req, res) => {
-    let user;
     try {
-        user = req.body;
+        const user = req.body;
         user.password = bcryptjs.hashSync(user.password);
         await User.create(user);
         res.status(201).set('Location', '/').end();
@@ -125,10 +124,9 @@ router.get('/courses/:id', asyncHandler( async (req, res) => {
 //Send a POST request to /courses to create a course, set the Location header to the URI for the course, and return no content (201)
 router.post('/courses', authenticateUser, asyncHandler( async (req, res) => {
     const user = req.currentUser;
-    let course;
     try {
         req.body.UserId = user.dataValues.id;
-        course = await Course.create(req.body);
+        const course = await Course.create(req.body);
         const courseId = course.dataValues.id;
         res.status(201).set('Location', `/courses/${courseId}`).end();
     } catch (error) {
