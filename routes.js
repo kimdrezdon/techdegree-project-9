@@ -73,11 +73,10 @@ const authenticateUser = async (req, res, next) => {
 
 //Send a GET request to /users to return the currently authenticated user (200)
 router.get('/users', authenticateUser, asyncHandler( async (req, res) => {
-    const user = req.currentUser;
-    res.status(200).json({
-        name: `${user.firstName} ${user.lastName}`,
-        username: user.emailAddress
+    const user = await User.findByPk(req.currentUser.dataValues.id, {
+        attributes: { exclude: ['password', 'createdAt', 'updatedAt'] }
     });
+    res.status(200).json(user);
 }));
 
 //Send a POST request to /users to create a user, set the Location header to '/' and return no content (201)
