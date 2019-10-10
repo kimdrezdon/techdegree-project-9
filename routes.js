@@ -81,12 +81,23 @@ router.get('/users', authenticateUser, asyncHandler( async (req, res) => {
 }));
 
 //Send a POST request to /users to create a user, set the Location header to '/' and return no content (201)
-router.post('/users', asyncHandler( async (req, res) => {
+router.post('/users', asyncHandler( async (req, res, next) => {
     try {
         const user = req.body;
-        user.password = bcryptjs.hashSync(user.password);
-        await User.create(user);
-        res.status(201).set('Location', '/').end();
+        if (user.password) {
+            user.password = bcryptjs.hashSync(user.password);
+        }
+        if (!user.emailAddress) {
+            user.emailAddress = "";
+        }
+        await User.findOrCreate({where: {emailAddress: user.emailAddress}, defaults: user})
+            .then(([user, created]) => {
+                if (created) {
+                    res.status(201).set('Location', '/').json({ message: 'New user successfully created' });
+                } else {
+                    res.status(200).set('Location', '/').json({ message: 'An account already exists with this email address' });
+                }
+            });
     } catch (error) {
         if (error.name === "SequelizeValidationError") {
             const errorMessages = error.errors.map(error => error.message);
