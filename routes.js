@@ -136,7 +136,7 @@ router.get('/courses/:id', asyncHandler( async (req, res) => {
 router.post('/courses', authenticateUser, asyncHandler( async (req, res) => {
     const user = req.currentUser;
     try {
-        req.body.UserId = user.dataValues.id;
+        req.body.userId = user.dataValues.id;
         const course = await Course.create(req.body);
         const courseId = course.dataValues.id;
         res.status(201).set('Location', `/courses/${courseId}`).end();
