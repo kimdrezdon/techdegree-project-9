@@ -10,23 +10,29 @@ app.use(morgan('dev'));
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
 
 // imports the database from index.js
-// const db = require("./db");
-
-// destructures the Book model imported from db.models
-// const { User, Course } = db.models;
+const db = require("./db");
 
 //Import the routes.js file
-// const routes = require('./routes');
+const routes = require('./routes');
 
 //Express middleware parses incoming JSON from the client and makes it available to our Express server via req.body
 app.use(express.json());
 
+//test the connection to the database
+(async () => {
+    try {
+        await db.sequelize.authenticate();
+        console.log('Connected to the database');
+    } catch (error) {
+        console.error('Error connecting to the database', error);
+    }
+}) ();
 
 // sync all tables. force:true drops the table that exists each time the app is started and recreates it from the model definition
-// db.sequelize.sync();
+db.sequelize.sync();
 
 //Use the routes.js file when the requested route starts with /api/
-// app.use('/api', routes);
+app.use('/api', routes);
 
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {
