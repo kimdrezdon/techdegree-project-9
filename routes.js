@@ -155,8 +155,8 @@ router.put('/courses/:id', authenticateUser, asyncHandler( async (req, res) => {
     try {
         const course = await Course.findByPk(req.params.id);
         if (course) {
-            if (course.UserId === user.dataValues.id) {
-                req.body.UserId = user.dataValues.id; //prevent accidental override of course owner
+            if (course.userId === user.dataValues.id) {
+                req.body.userId = user.dataValues.id; //prevent accidental override of course owner
                 await course.update(req.body);
                 res.status(204).end();
             } else {
@@ -180,7 +180,7 @@ router.delete('/courses/:id', authenticateUser, asyncHandler( async (req, res) =
     const user = req.currentUser;
     const course = await Course.findByPk(req.params.id);
     if (course) {
-        if (course.UserId === user.dataValues.id) {
+        if (course.userId === user.dataValues.id) {
             await course.destroy();
             res.status(204).end();
         } else {

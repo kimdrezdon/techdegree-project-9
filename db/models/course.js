@@ -52,7 +52,11 @@ module.exports = sequelize => {
 
     Course.associate = (models) => {
         //Tells Sequelize a course (source) can be associated with only one user (target)
-        Course.belongsTo(models.User);
+        Course.belongsTo(models.User, {
+            foreignKey: {
+                fieldName: 'userId'
+            }
+        })
     };
 
     return Course;
