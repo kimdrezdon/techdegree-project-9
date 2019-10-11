@@ -12,16 +12,6 @@ module.exports = sequelize => {
             primaryKey: true,
             autoIncrement: true
         },
-        userId: {
-            type: Sequelize.INTEGER,
-            references: {
-                // This is a reference to another model
-                model: 'User',
-           
-                // This is the column name of the referenced model
-                key: 'id',
-            }
-        },
         title: {
             type: Sequelize.STRING,
             allowNull: false,
@@ -62,10 +52,7 @@ module.exports = sequelize => {
 
     Course.associate = (models) => {
         //Tells Sequelize a course (source) can be associated with only one user (target)
-        Course.belongsTo(models.User, {
-            foreignKey: 'userId',
-            targetKey: 'id'
-        });
+        Course.belongsTo(models.User);
     };
 
     return Course;

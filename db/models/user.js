@@ -71,10 +71,7 @@ module.exports = sequelize => {
 
     User.associate = (models) => {
         //Tells Sequelize a user (source) can be associated with many courses (target), adds a userId foreign key column to the Courses table 
-        User.hasMany(models.Course, {
-            foreignKey: 'userId',
-            targetKey: 'id'
-        });
+        User.hasMany(models.Course);
     };
 
     return User;
