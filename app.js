@@ -6,6 +6,9 @@ const app = express();
 const morgan = require('morgan');
 app.use(morgan('dev'));
 
+// variable to enable global error logging
+const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
+
 // imports the database from index.js
 const db = require("./db");
 
@@ -32,20 +35,22 @@ app.get('/', (req, res) => {
     });
 });
 
-//Route for non-existent routes. Sends error message to error handling middleware
-app.use((req, res, next) => {
-    const err = new Error('Not Found');
-    err.status = 404;
-    next(err);
+//Route for non-existent routes. 
+app.use((req, res) => {
+    res.status(404).json({
+        message: 'Route Not Found',
+    });
 });
 
 //Global error handling middleware
 app.use((err, req, res, next) => {
-    res.status(err.status || 500);
-    res.json({
-        error: {
-            message: err.message
-        }
+    if (enableGlobalErrorLogging) {
+        console.error(`Global error handler: ${JSON.stringify(err.stack)}`);
+    }
+
+    res.status(err.status || 500).json({
+        message: err.message,
+        error: {}
     })
 });
 
