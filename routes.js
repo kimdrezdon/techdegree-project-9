@@ -38,10 +38,7 @@ const authenticateUser = async (req, res, next) => {
     // If a user was successfully retrieved from the data store...
     if (user) {
       // Use the bcryptjs npm package to compare the user's password (from the Authorization header) to the user's password that was retrieved from the database.
-      const authenticated = bcryptjs.compareSync(
-        credentials.pass,
-        user.password
-      );
+      const authenticated = bcryptjs.compareSync(credentials.pass, user.password);
       // If the passwords match...
       if (authenticated) {
         console.log(
@@ -70,168 +67,134 @@ const authenticateUser = async (req, res, next) => {
 };
 
 //Send a GET request to /users to return the currently authenticated user (200)
-router.get(
-  "/users",
-  authenticateUser,
-  asyncHandler(async (req, res) => {
+router.get("/users", authenticateUser, asyncHandler(async (req, res) => {
     const user = await User.findByPk(req.currentUser.dataValues.id, {
       attributes: { exclude: ["password", "createdAt", "updatedAt"] }
     });
     res.status(200).json(user);
-  })
-);
+}));
 
 //Send a POST request to /users to create a user, set the Location header to '/' and return no content (201). Validate that an account doesn't already exist with the specified email address (200)
-router.post(
-  "/users",
-  asyncHandler(async (req, res, next) => {
-    try {
-      const user = req.body;
-      if (user.password) {
-        user.password = bcryptjs.hashSync(user.password);
-      }
-      if (!user.emailAddress) {
-        user.emailAddress = "";
-      }
-      await User.findOrCreate({
-        where: { emailAddress: user.emailAddress },
-        defaults: user
-      }).then(([user, created]) => {
+router.post("/users", asyncHandler(async (req, res, next) => {
+  try {
+    const user = req.body;
+    if (user.password) {
+      user.password = bcryptjs.hashSync(user.password);
+    }
+    if (!user.emailAddress) {
+      user.emailAddress = "";
+    }
+    await User.findOrCreate({ where: { emailAddress: user.emailAddress }, defaults: user })
+      .then(([user, created]) => {
         if (created) {
           console.log("New user successfully created");
-          res
-            .status(201)
-            .set("Location", "/")
-            .end();
+          res.status(201).set("Location", "/").end();
         } else {
-          console.log(
-            `An account already exists with the email address ${user.emailAddress}`
-          );
-          res
-            .status(200)
-            .set("Location", "/")
-            .end();
+          console.log(`An account already exists with the email address ${user.emailAddress}`);
+          res.status(200).set("Location", "/").end();
         }
       });
-    } catch (error) {
-      if (error.name === "SequelizeValidationError") {
-        const errorMessages = error.errors.map(error => error.message);
-        res.status(400).json({ errors: errorMessages });
-      } else {
-        throw error;
-      }
+  } catch (error) {
+    if (error.name === "SequelizeValidationError") {
+      const errorMessages = error.errors.map(error => error.message);
+      res.status(400).json({ errors: errorMessages });
+    } else {
+      throw error;
     }
-  })
-);
+  }
+}));
 
 //Send a GET request to /courses to return a list of courses, including the user that owns each course (200)
-router.get(
-  "/courses",
-  asyncHandler(async (req, res) => {
-    const courses = await Course.findAll({
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-      include: [
-        {
-          model: User,
-          attributes: { exclude: ["password", "createdAt", "updatedAt"] }
-        }
-      ] //list of associations to load
-    });
-    res.status(200).json(courses);
-  })
-);
+router.get("/courses", asyncHandler(async (req, res) => {
+  const courses = await Course.findAll({
+    attributes: { exclude: ["createdAt", "updatedAt"] },
+    include: [
+      {
+        model: User,
+        attributes: { exclude: ["password", "createdAt", "updatedAt"] }
+      }
+    ] //list of associations to load
+  });
+  res.status(200).json(courses);
+}));
 
 //Send a GET request to /courses/:id to return the course, including the user that owns the course, for the provided course ID (200)
-router.get(
-  "/courses/:id",
-  asyncHandler(async (req, res) => {
-    const course = await Course.findByPk(req.params.id, {
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-      include: [
-        {
-          model: User,
-          attributes: { exclude: ["password", "createdAt", "updatedAt"] }
-        }
-      ] //list of associations to load
-    });
-    res.status(200).json(course);
-  })
-);
+router.get("/courses/:id", asyncHandler(async (req, res) => {
+  const course = await Course.findByPk(req.params.id, {
+    attributes: { exclude: ["createdAt", "updatedAt"] },
+    include: [
+      {
+        model: User,
+        attributes: { exclude: ["password", "createdAt", "updatedAt"] }
+      }
+    ] //list of associations to load
+  });
+  res.status(200).json(course);
+}));
 
 //Send a POST request to /courses to create a course, set the Location header to the URI for the course, and return no content (201)
-router.post(
-  "/courses",
-  authenticateUser,
-  asyncHandler(async (req, res) => {
-    const user = req.currentUser;
-    try {
-      req.body.userId = user.dataValues.id;
-      const course = await Course.create(req.body);
-      const courseId = course.dataValues.id;
-      res
-        .status(201)
-        .set("Location", `/courses/${courseId}`)
-        .end();
-    } catch (error) {
-      if (error.name === "SequelizeValidationError") {
-        const errorMessages = error.errors.map(error => error.message);
-        res.status(400).json({ errors: errorMessages });
-      } else {
-        throw error;
-      }
+router.post("/courses", authenticateUser, asyncHandler(async (req, res) => {
+  const user = req.currentUser;
+  try {
+    req.body.userId = user.dataValues.id;
+    const course = await Course.create(req.body);
+    const courseId = course.dataValues.id;
+    res.status(201).set("Location", `/courses/${courseId}`).end();
+  } catch (error) {
+    if (error.name === "SequelizeValidationError") {
+      const errorMessages = error.errors.map(error => error.message);
+      res.status(400).json({ errors: errorMessages });
+    } else {
+      throw error;
     }
-  })
-);
+  }
+}));
 
 //Send a PUT request to /courses/:id to update a course and return no content (204)
-router.put(
-  "/courses/:id",
-  authenticateUser,
-  asyncHandler(async (req, res) => {
-    const user = req.currentUser;
-    try {
-      const course = await Course.findByPk(req.params.id);
-      if (course) {
-        if (course.userId === user.dataValues.id) {
-          req.body.userId = user.dataValues.id; //prevent accidental override of course owner
-          await course.update(req.body);
-          res.status(204).end();
-        } else {
-          res.status(403).json({ message: "Access Denied" });
-        }
-      } else {
-        res.sendStatus(404);
-      }
-    } catch (error) {
-      if (error.name === "SequelizeValidationError") {
-        const errorMessages = error.errors.map(error => error.message);
-        res.status(400).json({ errors: errorMessages });
-      } else {
-        throw error;
-      }
-    }
-  })
-);
-
-//Send a DELETE request to /courses/:id to delete a course and return no content
-router.delete(
-  "/courses/:id",
-  authenticateUser,
-  asyncHandler(async (req, res) => {
-    const user = req.currentUser;
+router.put("/courses/:id", authenticateUser, asyncHandler(async (req, res) => {
+  const user = req.currentUser;
+  try {
     const course = await Course.findByPk(req.params.id);
     if (course) {
       if (course.userId === user.dataValues.id) {
-        await course.destroy();
-        res.status(204).end();
+        if (req.body.title && req.body.description) {
+          req.body.userId = user.dataValues.id; //prevent accidental override of course owner
+          await course.update(req.body);
+          res.status(204).end(); 
+        } else {
+          res.status(400).json({ message: "Please provide both a title and a description" });
+        }
       } else {
         res.status(403).json({ message: "Access Denied" });
       }
     } else {
       res.sendStatus(404);
     }
-  })
-);
+  } catch (error) {
+    if (error.name === "SequelizeValidationError") {
+      const errorMessages = error.errors.map(error => error.message);
+      res.status(400).json({ errors: errorMessages });
+    } else {
+      throw error;
+    }
+  }
+}));
+
+//Send a DELETE request to /courses/:id to delete a course and return no content
+router.delete("/courses/:id", authenticateUser, asyncHandler(async (req, res) => {
+  const user = req.currentUser;
+  const course = await Course.findByPk(req.params.id);
+  if (course) {
+    if (course.userId === user.dataValues.id) {
+      await course.destroy();
+      res.status(204).end();
+    } else {
+      res.status(403).json({ message: "Access Denied" });
+    }
+  } else {
+    res.sendStatus(404);
+  }
+}));
 
 //Export the router
 module.exports = router;
