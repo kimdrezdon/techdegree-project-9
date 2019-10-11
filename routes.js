@@ -27,17 +27,14 @@ function asyncHandler(cb) {
 //Custom authentication middleware function
 const authenticateUser = async (req, res, next) => {
     let message = null;
-
     // Parse the user's credentials from the Authorization header. will be set to an object containing the user's key and secret
     const credentials = auth(req);
-  
     // If the user's credentials are available and successfully parsed from the Authorization header...
     if (credentials) {
         // Attempt to retrieve the user from the database by their username (emailAddress)
         const user = await User.findOne({
             where: { emailAddress: credentials.name }
         });
-    
         // If a user was successfully retrieved from the data store...
         if (user) {
             // Use the bcryptjs npm package to compare the user's password (from the Authorization header) to the user's password that was retrieved from the database.
@@ -57,11 +54,9 @@ const authenticateUser = async (req, res, next) => {
     } else {
         message = 'Auth header not found';
     }
-  
     // If user authentication failed...
     if (message) {
         console.warn(message);
-
         // Return a response with a 401 Unauthorized HTTP status code. Message is 'access denied' so as not to provide the user a hint to what went wrong. 
         res.status(401).json({ message: 'Access Denied' });
     } else {
@@ -79,7 +74,7 @@ router.get('/users', authenticateUser, asyncHandler( async (req, res) => {
     res.status(200).json(user);
 }));
 
-//Send a POST request to /users to create a user, set the Location header to '/' and return no content (201)
+//Send a POST request to /users to create a user, set the Location header to '/' and return no content (201). Validate that an account doesn't already exist with the specified email address (200)
 router.post('/users', asyncHandler( async (req, res, next) => {
     try {
         const user = req.body;
@@ -92,9 +87,11 @@ router.post('/users', asyncHandler( async (req, res, next) => {
         await User.findOrCreate({where: {emailAddress: user.emailAddress}, defaults: user})
             .then(([user, created]) => {
                 if (created) {
-                    res.status(201).set('Location', '/').json({ message: 'New user successfully created' });
+                    console.log('New user successfully created');
+                    res.status(201).set('Location', '/').end();
                 } else {
-                    res.status(200).set('Location', '/').json({ message: 'An account already exists with this email address' });
+                    console.log(`An account already exists with the email address ${user.emailAddress}`);
+                    res.status(200).set('Location', '/').end();
                 }
             });
     } catch (error) {
@@ -184,7 +181,7 @@ router.delete('/courses/:id', authenticateUser, asyncHandler( async (req, res) =
             await course.destroy();
             res.status(204).end();
         } else {
-            res.status(401).json({ message: 'Access Denied' });
+            res.status(403).json({ message: 'Access Denied' });
         }
     } else {
         res.sendStatus(404);
