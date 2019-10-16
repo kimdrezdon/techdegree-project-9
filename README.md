@@ -1,5 +1,4 @@
-# techdegree-project-9
- REST API
+# REST API
 
 This project uses Sequelize, Express, Node.js and JavaScript to build a REST API that manages a database of course and users. 
 
