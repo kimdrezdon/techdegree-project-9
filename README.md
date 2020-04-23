@@ -1,6 +1,8 @@
 # REST API
 
-This project uses Sequelize, Express, Node.js and JavaScript to build a REST API that manages a database of course and users. 
+### Techdegree Project 9
+
+This project uses Sequelize, Express, Node.js and JavaScript to build a REST API that manages a database of course and users.
 
 A list of courses or a single course can be viewed without authorization.
 Courses can be created by an authorized user.
@@ -11,7 +13,7 @@ Users can be created.
 The current authorized user can be returned.
 Error messages will be displayed if the name, email address or password fields are empty.
 Passwords are hashed using bcrypt.
- 
+
 ## Available Scripts
 
 In the project directory, you can run:
